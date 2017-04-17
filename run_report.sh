@@ -99,5 +99,7 @@ then
     exit 1
 fi
 
+rm temp.txt data.zip
+
 exit 0
 
