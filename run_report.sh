@@ -61,24 +61,25 @@ then
     fi
 fi
 
-# Dates are verified in report.py module
-
+# Dates are verified in report.py modulee
+echo "Running Create_report"
+echo $begDate $endDate
 python3 create_report.py $begDate $endDate >> temp.txt
 
-fileName="NEEDNAME"
-file="NEEDFILE"
+file="temp.txt"
+fileName="data.zip"
 ftpDest="137.190.19.104"
 
 if [[ $? == 0 ]]
 then
-    `zip -v $fileName $file`
+    zip -v $fileName $file
 
-    `ftp -in $ftpDest << EOF
+    ftp -nv $ftpDest <<END_SCRIPT
     quote USER $user
     quote PASS $passwd
-    put $file
-    bye
-    EOF`
+    put $fileName
+    quit
+END_SCRIPT
 
     echo "Successfully created a transaction report from $begDate to $endDate" | mail -s "Successfully transfer file $ftpDest" $email
 fi

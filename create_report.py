@@ -87,6 +87,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    print(sys.argv)
     main(sys.argv)
 
     exit(0)
