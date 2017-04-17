@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import sys
-#CS3030 Assignment
-#Author: Trevor Orgill
-#Description: Takes in a Date and formats it to date time
+import sqlite3
+conn = sqlite3.connect('hw8SQLite.db')
+c = conn.cursor()
+# CS3030 Assignment
+# Author: Trevor Orgill
+# Description: Takes in a Date and formats it to date time
 
 
 def formatDate(date, time):
@@ -45,8 +48,42 @@ def main(argv):
     if (len(argv[2]) != 8):
         print("Invalid date length")
         usage()
-    print(formatDate(argv[1], "beg"))
-    print(formatDate(argv[2], "end"))
+
+    current = 1
+    end = []
+    end.append("")
+    eachamount = []
+    eachamount.append("")
+    for row in c.execute("SELECT t.trans_id, t.trans_date, t.card_num, tl.qty, tl.amt, p.prod_desc " +
+                         "FROM trans t INNER JOIN trans_line tl " +
+                         "ON t.trans_id = tl.trans_id " +
+                         "INNER JOIN products p " +
+                         "ON p.prod_num = tl.prod_num "
+                         "WHERE t.trans_date > '" + formatDate(argv[1], "beg") +
+                         "' AND t.trans_date < '" + formatDate(argv[2], "end") + "'"):
+        if (row[0] != current):
+            if (len(end[current][0]) < 45):
+                end[current][0] = end[current][0] + '00000000          00000000          ' + str(eachamount[current]).replace('.','').zfill(6)
+            elif (len(end[current][0]) < 63):
+                end[current][0] = end[current][0] + '00000000          ' + str(eachamount[current]).replace('.','').zfill(6)
+            current = current +1
+        if (row[0] == current):
+            if (len(end) == current):
+                end.append([])
+                eachamount.append(0)
+                eachamount[current] = eachamount[current] + row[4]
+                end[current].append(str(row[0]).zfill(5) + row[1][0] + row[1][1] + row[1][2] + row[1][3] + row[1][5] + row[1][6] +
+                    row[1][8] + row[1][9] + row[1][11] + row[1][12] + row[1][14] + row[1][15] +
+                    str(row[2])[8:] + str(row[3])[0].zfill(1) + str(row[3])[1].zfill(1) + str(row[4]).replace('.','').zfill(6) + str(row[5]).ljust(10))
+            else:
+                eachamount[current] = eachamount[current] + row[4]
+                end[current][0] = end[current][0] + (str(row[3])[0] + str(row[3])[1]).replace('.','').zfill(2) + str(row[4]).replace('.','').zfill(6) + str(row[5]).ljust(10)
+            if (len(end[current][0]) > 75):
+                end[current][0] = end[current][0] + str(eachamount[current]).replace('.','').zfill(6)
+
+    for i in end:
+        if (i != ""):
+            print(str(i).replace("'",'').replace('[','').replace(']',''))
 
 
 if __name__ == "__main__":

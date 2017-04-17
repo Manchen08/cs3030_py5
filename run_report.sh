@@ -63,7 +63,7 @@ fi
 
 # Dates are verified in report.py module
 
-python3 create_report.py $begDate $endDate
+python3 create_report.py $begDate $endDate >> temp.txt
 
 fileName="NEEDNAME"
 file="NEEDFILE"
